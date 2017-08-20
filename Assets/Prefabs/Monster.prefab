@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb7c5beb07c4d4892881949216378e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 6
   energy: 5
   monsterEnergyText: {fileID: 114769049674448070}
 --- !u!212 &212188950234350398
