@@ -38,15 +38,35 @@ public class WarriorController : MonoBehaviour {
 	}
 
 	void FixedUpdate (){
-		float moveX = Input.GetAxis("Horizontal");
-		float moveY = Input.GetAxis("Vertical");
+		float moveX = 0;
+		float moveY = 0;
+
+		if (Input.GetKey(KeyCode.RightArrow)) {
+			moveX = 1;
+		}
+
+		if (Input.GetKey(KeyCode.LeftArrow)) {
+			moveX = -1;
+		}
+
+		if (Input.GetKey(KeyCode.UpArrow)) {
+			moveY = 1;
+		}
+
+		if (Input.GetKey(KeyCode.DownArrow)) {
+			moveY = -1;
+		}
+
 
 		float velocityX = moveX * speed;
 		float velocityY = moveY * speed;
 
-		if (Mathf.Abs(Input.GetAxis ("Horizontal")) > 0.1 || Mathf.Abs(Input.GetAxis ("Vertical")) > 0.1) {
+		if (Input.GetKey (KeyCode.RightArrow) || Input.GetKey (KeyCode.LeftArrow) || Input.GetKey (KeyCode.UpArrow) || Input.GetKey (KeyCode.DownArrow)) {
 			animator.SetFloat ("velocityX", velocityX);
 			animator.SetFloat ("velocityY", velocityY);
+			animator.SetBool ("Walking", true);
+		} else {
+			animator.SetBool ("Walking", false);
 		}
 
 		Vector2 newVelocity	= new Vector2 (velocityX, velocityY);
