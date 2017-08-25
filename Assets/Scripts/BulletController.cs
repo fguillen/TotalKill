@@ -8,9 +8,6 @@ public class BulletController : MonoBehaviour {
 	public GameObject bulletExplosion;
 
 	void OnCollisionEnter2D(Collision2D collision){
-		Debug.Log ("bullet collision 1: ");
-		Debug.Log ("bullet collision: " + collision);
-
 		GameObject bulletExplosionCloned = Instantiate (bulletExplosion, transform.position, Quaternion.identity);
 	
 		Destroy (gameObject);

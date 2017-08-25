@@ -6,10 +6,14 @@ public class WarriorController : MonoBehaviour {
 
 	public float speed;
 	public float speedBullet;
+	private int direction;
+	private int moveX;
+	private int moveY;
+	private bool walking;
+	private bool attacking;
 	private Rigidbody2D rigidbody2D;
 	private Animator animator;
 	private Animator animatorGun;
-	public GameObject gun;
 	public GameObject bullet;
 	public GameObject firePoint;
 	public GameObject monster;
@@ -19,65 +23,132 @@ public class WarriorController : MonoBehaviour {
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D> ();
 		animator = GetComponent<Animator> ();
-		animatorGun = gun.GetComponent<Animator> ();
 
 		AddMonster ();
+
+		direction = 2;
+		attacking = false;
+		walking = false;
 	}
 
 	
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown (KeyCode.J)) {
-			animatorGun.SetBool ("Fire", true);	
+			attacking = true;
 			Fire ();
 		}
 
 		if (Input.GetKeyUp (KeyCode.J)) {
-			animatorGun.SetBool ("Fire", false);	
-		}
-	}
-
-	void FixedUpdate (){
-		float moveX = 0;
-		float moveY = 0;
-
-		if (Input.GetKey(KeyCode.RightArrow)) {
-			moveX = 1;
-		}
-
-		if (Input.GetKey(KeyCode.LeftArrow)) {
-			moveX = -1;
+			attacking = false;
 		}
 
 		if (Input.GetKey(KeyCode.UpArrow)) {
-			moveY = 1;
+			direction = 0;
+		}
+
+		if (Input.GetKey(KeyCode.RightArrow)) {
+			direction = 1;
 		}
 
 		if (Input.GetKey(KeyCode.DownArrow)) {
-			moveY = -1;
+			direction = 2;
 		}
 
+		if (Input.GetKey(KeyCode.LeftArrow)) {
+			direction = 3;
+		}
+
+		if (Input.GetKey (KeyCode.RightArrow) || Input.GetKey (KeyCode.LeftArrow) || Input.GetKey (KeyCode.UpArrow) || Input.GetKey (KeyCode.DownArrow)) {
+			walking = true;
+		} else {
+			walking = false;
+		}
+
+		if (attacking) {
+			walking = false;
+		}
+
+		animator.SetFloat ("direction", direction / 3f);
+		animator.SetBool ("walking", walking);
+		animator.SetBool ("attacking", attacking);
+
+		moveX = 0;
+		moveY = 0;
+
+		if (walking) {
+			if (direction == 0) {
+				moveX = 0;
+				moveY = 1;
+			}
+
+			if (direction == 1) {
+				moveX = 1;
+				moveY = 0;
+			}
+
+			if (direction == 2) {
+				moveX = 0;
+				moveY = -1;
+			}
+
+			if (direction == 3) {
+				moveX = -1;
+				moveY = 0;
+			}
+		}
 
 		float velocityX = moveX * speed;
 		float velocityY = moveY * speed;
-
-		if (Input.GetKey (KeyCode.RightArrow) || Input.GetKey (KeyCode.LeftArrow) || Input.GetKey (KeyCode.UpArrow) || Input.GetKey (KeyCode.DownArrow)) {
-			animator.SetFloat ("velocityX", velocityX);
-			animator.SetFloat ("velocityY", velocityY);
-			animator.SetBool ("Walking", true);
-		} else {
-			animator.SetBool ("Walking", false);
-		}
 
 		Vector2 newVelocity	= new Vector2 (velocityX, velocityY);
 
 		rigidbody2D.velocity = newVelocity;
 	}
-
+		
 	void Fire (){
 		GameObject bulletCloned = Instantiate (bullet, firePoint.transform.position, transform.rotation	);	
-		Vector3 bulletForward = transform.rotation * (Vector3.up);   
-		bulletCloned.GetComponent<Rigidbody2D> ().AddForce (bulletForward * speedBullet, ForceMode2D.Impulse);
+
+		int bulletMoveX = 0;
+		int bulletMoveY = 0;
+		int bulletRotationDegrees = 0;
+
+		if (direction == 0) {
+			bulletMoveX = 0;
+			bulletMoveY = 1;
+			bulletRotationDegrees = 0;
+		}
+
+		if (direction == 1) {
+			bulletMoveX = 1;
+			bulletMoveY = 0;
+			bulletRotationDegrees = -90;
+		}
+
+		if (direction == 2) {
+			bulletMoveX = 0;
+			bulletMoveY = -1;
+			bulletRotationDegrees = 180;
+		}
+
+		if (direction == 3) {
+			bulletMoveX = -1;
+			bulletMoveY = 0;
+			bulletRotationDegrees = 90;
+		}
+
+		float velocityX = bulletMoveX * speedBullet;
+		float velocityY = bulletMoveY * speedBullet;
+
+		Vector2 bulletVelocity = new Vector2 (velocityX, velocityY); 
+
+		Rigidbody2D bulletRigidbody = bulletCloned.GetComponent<Rigidbody2D> ();
+		bulletRigidbody.velocity = bulletVelocity;
+
+//		// Rotation
+		bulletCloned.transform.Rotate(0, 0, bulletRotationDegrees);
+//
+//		Debug.Log ("BulletRotation" + bulletCloned.transform.rotation);
 	}
 
 	IEnumerator AddMonsterAfterDelay(float delayInSeconds) {
@@ -87,7 +158,7 @@ public class WarriorController : MonoBehaviour {
 	}
 
 	void AddMonster () {
-		GameObject monsterCloned = Instantiate (monster, monsterNest.transform.position, Quaternion.identity);
+		Instantiate (monster, monsterNest.transform.position, Quaternion.identity);
 		StartCoroutine (AddMonsterAfterDelay (Random.Range (1f, 10f)));
 	}
 
